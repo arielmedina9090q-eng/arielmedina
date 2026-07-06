@@ -29,7 +29,7 @@
   --black:#151a1d;--mid:#8e989e;--border:rgba(241,234,239,0.14);
   --fluid-ease:cubic-bezier(.16,1,.3,1);
 }
-html{min-height:100%;scroll-behavior:smooth;scroll-padding-top:0}
+html{min-height:100%;scroll-behavior:auto;scroll-padding-top:0}
 body{min-height:100%;background:var(--bg);color:var(--fg);font-family:'DM Sans',sans-serif;font-weight:400;overflow-x:hidden;cursor:none;}
 body::before{content:'';position:fixed;inset:-35vh -10vw;z-index:0;pointer-events:none;background:radial-gradient(ellipse at 50% 18%,rgba(241,234,239,.18) 0%,rgba(106,118,124,.13) 26%,rgba(13,16,18,.04) 58%,rgba(13,16,18,0) 78%),radial-gradient(ellipse at 48% 55%,rgba(241,234,239,.075) 0%,rgba(106,118,124,.06) 32%,rgba(13,16,18,0) 70%),linear-gradient(180deg,rgba(35,40,43,.58) 0%,rgba(13,16,18,.18) 44%,rgba(13,16,18,.74) 100%);filter:blur(8px);}
 #smooth-wrapper{position:relative;z-index:1;width:100%;min-height:100dvh;overflow:visible;will-change:auto;transform:none;}
@@ -70,8 +70,8 @@ nav.scrolled{background:transparent;}
 @keyframes fi{to{opacity:1}}
 
 #hero{position:relative;width:100%;height:100vh;height:100dvh;background:transparent;overflow:visible;display:flex;align-items:center;justify-content:center;}
-#hero::before{content:'';position:absolute;left:-8vw;right:-8vw;bottom:-20vh;height:48vh;z-index:5;pointer-events:none;background:radial-gradient(ellipse at 50% 18%,rgba(241,234,239,.12) 0%,rgba(91,103,109,.12) 28%,rgba(13,16,18,.28) 58%,rgba(13,16,18,0) 82%),linear-gradient(180deg,rgba(13,16,18,0) 0%,rgba(13,16,18,.42) 46%,rgba(13,16,18,0) 100%);filter:blur(34px);transform:translateZ(0);}
-#hero::after{content:'';position:absolute;inset:-18vh 0;z-index:6;pointer-events:none;background:radial-gradient(ellipse at center, rgba(241,234,239,.025) 0%, rgba(18,22,24,.1) 60%, rgba(0,0,0,.24) 100%);}
+#hero::before{content:none;}
+#hero::after{content:none;}
 .hero-name{display:none}
 .hero-sub{position:absolute;bottom:48px;left:0;right:0;text-align:center;font-size:.62rem;font-weight:400;letter-spacing:.25em;text-transform:uppercase;color:rgba(241,234,239,.28);z-index:11;}
 .hero-frame{display:none;}
@@ -325,10 +325,10 @@ Creo que toda forma nace de una idea y toda idea merece un prop&oacute;sito. Por
 <section id="contact">
   <h2 class="c-phrase rev">Trabajemos <em>juntos</em></h2>
   <div class="c-links rev">
-    <span class="c-link"><span class="c-type">Email</span>arielmedina9090q@gmail.com <span>&#8599;</span></span>
-    <span class="c-link"><span class="c-type">Behance</span>behance.net/aarielmedina <span>&#8599;</span></span>
-    <span class="c-link"><span class="c-type">Instagram</span>@aarielmedina <span>&#8599;</span></span>
-    <span class="c-link"><span class="c-type">CV</span>Currículum Vitae <span>&#8599;</span></span>
+    <a class="c-link" href="mailto:arielmedina9090q@gmail.com"><span class="c-type">Email</span>arielmedina9090q@gmail.com <span>&#8599;</span></a>
+    <a class="c-link" href="https://www.behance.net/aarielmedina" target="_blank" rel="noopener noreferrer"><span class="c-type">Behance</span>behance.net/aarielmedina <span>&#8599;</span></a>
+    <a class="c-link" href="https://www.instagram.com/aarielmedina/" target="_blank" rel="noopener noreferrer"><span class="c-type">Instagram</span>@aarielmedina <span>&#8599;</span></a>
+    <span class="c-link"><span class="c-type">CV</span>Currículum Vitae</span>
   </div>
 </section>
 <footer>
@@ -704,23 +704,34 @@ if(aboutSection&&aboutStatement){
     const visibleCount=Math.ceil(progress*(readWords.length+1));
     readWords.forEach((word,i)=>word.classList.toggle('is-read',i<visibleCount));
   }
-  window.addEventListener('scroll',updateReadingProgress,{passive:true});
-  window.addEventListener('resize',updateReadingProgress);
+  let readingTick=false;
+  function requestReadingProgress(){
+    if(readingTick) return;
+    readingTick=true;
+    requestAnimationFrame(()=>{
+      readingTick=false;
+      updateReadingProgress();
+    });
+  }
+  window.addEventListener('scroll',requestReadingProgress,{passive:true});
+  window.addEventListener('resize',requestReadingProgress);
   updateReadingProgress();
 }
 const obs=new IntersectionObserver(entries=>{
   entries.forEach((e,i)=>{
-    if(e.isIntersecting) setTimeout(()=>e.target.classList.add('v'),i*60);
-    else e.target.classList.remove('v');
+    if(!e.isIntersecting||e.target.classList.contains('v')) return;
+    setTimeout(()=>e.target.classList.add('v'),i*45);
+    obs.unobserve(e.target);
   });
 },{threshold:0.12});
 document.querySelectorAll('.rev').forEach(el=>obs.observe(el));
 const cardObs=new IntersectionObserver(entries=>{
   entries.forEach((e,i)=>{
-    if(e.isIntersecting) setTimeout(()=>e.target.classList.add('revealed'),i*100);
-    else e.target.classList.remove('revealed');
+    if(!e.isIntersecting||e.target.classList.contains('revealed')) return;
+    setTimeout(()=>e.target.classList.add('revealed'),i*70);
+    cardObs.unobserve(e.target);
   });
-},{threshold:0.15});
+},{threshold:0.12});
 document.querySelectorAll('.work-card').forEach(el=>cardObs.observe(el));
 document.querySelectorAll('.work-card').forEach(card=>{
   card.addEventListener('mousemove',e=>{
@@ -977,6 +988,14 @@ document.querySelectorAll('.work-card').forEach(item=>{
     });
     return{text,letters,wordIndex};
   });
+  let heroVisible=true;
+  const heroSection=document.getElementById('hero');
+  if('IntersectionObserver' in window&&heroSection){
+    const heroObs=new IntersectionObserver(entries=>{
+      heroVisible=entries.some(entry=>entry.isIntersecting);
+    },{threshold:0.02});
+    heroObs.observe(heroSection);
+  }
   const started=performance.now();
   function easeIO(t){return t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}
   function clamp01(v){return Math.max(0,Math.min(1,v));}
@@ -1044,7 +1063,12 @@ document.querySelectorAll('.work-card').forEach(item=>{
     else{word=next;form=p<.88?easeIO((p-.58)/.30):1;}
     drawLetterCloud(W,H,R,word,form);
   }
-  function draw(){ar+=.00242;rx+=(trx-rx)*.04;ry+=((try_+ar)-ry)*.04;
+  function draw(){
+    if(!heroVisible){
+      requestAnimationFrame(draw);
+      return;
+    }
+    ar+=.00242;rx+=(trx-rx)*.04;ry+=((try_+ar)-ry)*.04;
     const W=viewW,H=viewH,R=Math.min(W,H)*.62;ctx.clearRect(0,0,W,H);
     drawWorkSphere(W,H,R);
     drawNameOrbit(W,H,R);
