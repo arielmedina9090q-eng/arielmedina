@@ -102,7 +102,7 @@ nav.scrolled{background:transparent;}
 .work-card.contain-cover .wc-img img{object-fit:contain;background:#0d1012;}
 .work-card:hover .wc-img img,.work-card:hover .wc-img video{filter:none;transform:scale(1.06);}
 .work-card.locked{background:linear-gradient(145deg,rgba(241,234,239,.09),rgba(13,16,18,.96));border:1px solid rgba(241,234,239,.12);}
-.work-card.locked::before{content:'Bloqueado';position:absolute;left:24px;top:24px;z-index:4;font-size:.52rem;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:rgba(241,234,239,.46);}
+.work-card.locked::before{content:attr(data-status);position:absolute;left:24px;top:24px;z-index:4;font-size:.52rem;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:rgba(241,234,239,.46);}
 .locked-preview{position:absolute;inset:0;display:grid;place-items:center;color:rgba(241,234,239,.18);font-size:clamp(2.1rem,4vw,5.2rem);font-weight:800;letter-spacing:-.04em;text-transform:uppercase;}
 .work-card.locked .wc-num{opacity:1;color:rgba(241,234,239,.34);}
 .work-card.locked .wc-name{opacity:1;filter:none;transform:none;color:#f1eaef;}
@@ -526,10 +526,11 @@ const projects = [
     ]
   },
   {
-    name:'UX/UI Calcomanítico E-commerce (en desarrollo)',
+    name:'Calcomaniatico Shop — UX/UI',
     year:'2026',
     tag:'UX/UI',
-    locked:true
+    locked:true,
+    status:'En desarrollo / próximamente'
   },
 
 ];
@@ -551,11 +552,11 @@ worksGrid.innerHTML=projects.map((p,i)=>{
     ? `<video src="${cover}" autoplay muted loop playsinline></video>`
     : `<img src="${cover}" alt="${p.name}" data-cycle="${encodeURIComponent(JSON.stringify(cycle))}" data-cycle-speed="${cycleSpeed}">`;
   const cardClass=['work-card',p.locked?'locked':'',p.containCover?'contain-cover':''].filter(Boolean).join(' ');
-  return `<article class="${cardClass}" data-project="${i}">
+  return `<article class="${cardClass}" data-project="${i}"${p.status?` data-status="${p.status}"`:''}>
     <div class="wc-img">${coverHtml}</div>
     <div class="wc-overlay"></div>
     <div class="wc-body">
-      <div class="wc-num">${String(i+1).padStart(2,'0')}</div>
+      <div class="wc-num">${p.locked?'':String(i+1).padStart(2,'0')}</div>
       <div class="wc-year">${p.year||''}</div>
       <h3 class="wc-name">${p.name}</h3>
       <div class="wc-category">${p.tag||''}</div>
